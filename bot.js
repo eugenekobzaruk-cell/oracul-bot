@@ -71,15 +71,19 @@ function tgGetUpdates(offset) {
 
 // ─── Parser ─────────────────────────────────────────────────
 function parseTransaction(text) {
-  const amountMatch = text.match(/(\d+(?:[.,]\d+)?)\s*(usdt|usdc|usd|uah|грн|гривень|доларів|баксів|\$|€|євро|eur)/i);
+  // Match both "$500" and "500 usd" and "500 доларів" formats
+  const amountMatch = text.match(/(?:\$|USD|usd)\s*(\d+(?:[.,]\d+)?)|(?:€|EUR|eur)\s*(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)\s*(usdt|usdc|usd|uah|грн|гривень|доларів|баксів|\$|€|євро|eur)/i);
   if (!amountMatch) return null;
 
   const isIncome = /отримали|отримав|зайшло|надійшло|прийшло|заплатив клієнт|від клієнта|received|income/i.test(text);
   const isExpense = /заплатили|витратили|відправили|переказали|витратив|spent|paid|expense/i.test(text);
   if (!isIncome && !isExpense) return null;
 
-  const amount = parseFloat(amountMatch[1].replace(",", "."));
-  const rawCur = amountMatch[2].toLowerCase();
+  // Extract amount and currency from whichever group matched
+  const rawAmount = amountMatch[1] || amountMatch[2] || amountMatch[3] || "0";
+  const rawCurRaw = amountMatch[4] || (amountMatch[1] ? "usd" : amountMatch[2] ? "eur" : "usd");
+  const amount = parseFloat(rawAmount.replace(",", "."));
+  const rawCur = rawCurRaw.toLowerCase();
   const currency = rawCur.includes("uah") || rawCur.includes("грн") || rawCur.includes("гривень") ? "UAH"
     : rawCur.includes("eur") || rawCur.includes("євро") || rawCur === "€" ? "EUR" : "USD";
 
