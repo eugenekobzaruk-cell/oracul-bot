@@ -1,0 +1,9 @@
+{
+  "name": "oracul-bot",
+  "version": "1.0.0",
+  "description": "ORACUL Telegram Finance Bot for Ninja Music",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  }
+}
